@@ -25,13 +25,11 @@ func main() {
 	}
 
 	PORT := os.Getenv("PORT")
-	JWT_SECRET := os.Getenv("PORT")
+	JWT_SECRET := os.Getenv("JWT_SECRET")
 	DATABASE_URL := os.Getenv("DATABASE_URL")
 
 	// imprimir variables de entorno
 	println("PORT:", PORT)
-	println("JWT_SECRET:", JWT_SECRET)
-	println("DATABASE_URL:", DATABASE_URL)
 
 	s, err := server.NewServer(ctx, &server.Config{
 		JwtSecret:   JWT_SECRET,
