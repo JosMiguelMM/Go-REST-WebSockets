@@ -3,8 +3,10 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/JosMiguelMM/Go-REST-WebSockets/models"
+	_ "github.com/lib/pq"
 )
 
 type PostgresRepository struct {
@@ -22,4 +24,27 @@ func NewPostgres(url string) (*PostgresRepository, error) {
 func (repo *PostgresRepository) InsertUser(ctx context.Context, user models.User) error {
 	_, err := repo.db.ExecContext(ctx, "INSERT INTO users(email, password) VALUES ($1,$2)", user.Email, user.Password)
 	return err
+}
+
+func (repo *PostgresRepository) GetUserById(ctx context.Context, id string) (*models.User, error) {
+	rowsUsers, err := repo.db.QueryContext(ctx, "SELECT id, email FROM users WHERE id = $1", id)
+	defer func() {
+		err := rowsUsers.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	var user models.User
+	if rowsUsers.Next() {
+		err = rowsUsers.Scan(&user.Id, &user.Email)
+		if err != nil {
+			return &models.User{}, err
+		}
+	}
+	return &user, nil
+}
+
+func (repo *PostgresRepository) Close() error {
+	return repo.db.Close()
 }
