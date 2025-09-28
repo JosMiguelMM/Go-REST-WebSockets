@@ -1,4 +1,4 @@
-package postgres
+package database
 
 import (
 	"context"
@@ -21,8 +21,8 @@ func NewPostgres(url string) (*PostgresRepository, error) {
 	return &PostgresRepository{db: db}, nil
 }
 
-func (repo *PostgresRepository) InsertUser(ctx context.Context, user models.User) error {
-	_, err := repo.db.ExecContext(ctx, "INSERT INTO users(email, password) VALUES ($1,$2)", user.Email, user.Password)
+func (repo *PostgresRepository) InsertUser(ctx context.Context, user *models.User) error {
+	_, err := repo.db.ExecContext(ctx, "INSERT INTO users(id, email, password) VALUES ($1,$2,$3)", user.Id, user.Email, user.Password)
 	return err
 }
 
@@ -38,6 +38,25 @@ func (repo *PostgresRepository) GetUserById(ctx context.Context, id string) (*mo
 	var user models.User
 	if rowsUsers.Next() {
 		err = rowsUsers.Scan(&user.Id, &user.Email)
+		if err != nil {
+			return &models.User{}, err
+		}
+	}
+	return &user, nil
+}
+
+func (repo *PostgresRepository) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	rowsUsers, err := repo.db.QueryContext(ctx, "SELECT id, email, password FROM users WHERE email = $1", email)
+	defer func() {
+		err := rowsUsers.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	var user models.User
+	if rowsUsers.Next() {
+		err = rowsUsers.Scan(&user.Id, &user.Email, &user.Password)
 		if err != nil {
 			return &models.User{}, err
 		}
