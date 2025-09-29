@@ -7,15 +7,18 @@ import (
 	"os"
 
 	"github.com/JosMiguelMM/Go-REST-WebSockets/handlers"
+	"github.com/JosMiguelMM/Go-REST-WebSockets/middleware"
 	"github.com/JosMiguelMM/Go-REST-WebSockets/server"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
 func BinderRoutes(s server.Server, r *mux.Router) {
+	r.Use(middleware.CheckAuthMiddleware(s))
 	r.HandleFunc("/", handlers.HomeHandler(s)).Methods(http.MethodGet)
 	r.HandleFunc("/signup", handlers.SingUpHandler(s)).Methods(http.MethodPost)
 	r.HandleFunc("/login", handlers.LoginHandler(s)).Methods(http.MethodPost)
+	r.HandleFunc("/me", handlers.MeHandler(s)).Methods(http.MethodGet)
 }
 
 func main() {

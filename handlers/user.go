@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/JosMiguelMM/Go-REST-WebSockets/models"
@@ -35,6 +36,17 @@ type SingUpResponse struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+// ... (justo después de tus structs)
+
+// SendErrorResponse es una función de ayuda para enviar errores en formato JSON.
+func SendErrorResponse(w http.ResponseWriter, message string, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(ErrorResponse{Message: message})
+}
+
+// ... (el resto de tus handlers)
 
 func SingUpHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -135,4 +147,32 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 		response := LoginResponse{Token: tokenString}
 		json.NewEncoder(w).Encode(response)
 	}
+}
+
+func MeHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
+		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{},
+			func(token *jwt.Token) (any, error) {
+				return []byte(s.Config().JwtSecret), nil
+			})
+		if err != nil {
+			SendErrorResponse(w, "Invalid or expired token", http.StatusUnauthorized)
+			return
+		}
+		if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
+			user, err := repository.GetUserById(r.Context(), claims.UserId)
+			if err != nil {
+				SendErrorResponse(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(user)
+		} else {
+			SendErrorResponse(w, "An error has occurred", http.StatusInternalServerError)
+			return
+		}
+	}
+
 }
