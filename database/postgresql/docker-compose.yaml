@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  postgres:
+    build: .
+    container_name: local_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: miguel.mendez
+      POSTGRES_PASSWORD: mipassword-miguel.mendez
+      POSTGRES_DB: mibasededatos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

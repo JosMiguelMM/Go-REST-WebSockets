@@ -48,7 +48,8 @@ func NewServer(ctx context.Context, config *Config) (*Broker, error) {
 }
 
 func (broker *Broker) Start(binder func(s Server, r *mux.Router)) {
-	broker.router = mux.NewRouter()
+	//Para no llenar de basura al GC
+	//broker.router = mux.NewRouter()
 	binder(broker, broker.router)
 	repo, err := database.NewPostgres(broker.config.DataBaseUrl)
 	if err != nil {
