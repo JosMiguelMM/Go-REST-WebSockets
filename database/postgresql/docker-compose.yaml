@@ -1,16 +1,17 @@
 version: "3.8"
 services:
   postgres:
-    build: .
+    image: postgres:18
     container_name: local_postgres
     restart: always
     environment:
-      POSTGRES_USER: miguel.mendez
-      POSTGRES_PASSWORD: mipassword-miguel.mendez
-      POSTGRES_DB: mibasededatos
+      POSTGRES_USER: "app"
+      POSTGRES_PASSWORD: "mipassword-miguel.mendez"
+      POSTGRES_DB: "mibasededatos"
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
+      - ./DDL:/docker-entrypoint-initdb.d
 volumes:
   pgdata:
