@@ -31,6 +31,7 @@ func (b *Broker) Config() *Config {
 }
 
 func NewServer(ctx context.Context, config *Config) (*Broker, error) {
+
 	switch {
 	case config.Port == "":
 		return nil, errors.New("Port is required")
