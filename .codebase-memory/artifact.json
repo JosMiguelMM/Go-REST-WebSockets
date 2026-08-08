@@ -1,11 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "3cadcef0d2941bf86c921d53cb54713d8c513a20",
-    "indexed_at": "2026-08-08T18:28:12Z",
+    "commit": "94a56f6983028453c4f9bab2772984cf7256d256",
+    "indexed_at": "2026-08-08T21:26:42Z",
     "project": "home-josemmm-Proyectos-Platzi-Go-REST-WebSockets",
-    "nodes": 161,
-    "edges": 265,
-    "original_size": 1900544,
-    "compressed_size": 110058,
+    "nodes": 178,
+    "edges": 278,
+    "original_size": 2031616,
+    "compressed_size": 111980,
     "compression_level": 3
 }
