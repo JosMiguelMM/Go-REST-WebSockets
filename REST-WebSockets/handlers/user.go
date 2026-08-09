@@ -76,7 +76,6 @@ func SingUpHandler(s server.Server) http.HandlerFunc {
 			if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusConflict)
-				json.NewEncoder(w).Encode(ErrorResponse{Message: "User with this email already exists"})
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -150,12 +149,15 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 }
 
 func MeHandler(s server.Server) http.HandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
+
 		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{},
 			func(token *jwt.Token) (any, error) {
 				return []byte(s.Config().JwtSecret), nil
 			})
+
 		if err != nil {
 			SendErrorResponse(w, "Invalid or expired token", http.StatusUnauthorized)
 			return

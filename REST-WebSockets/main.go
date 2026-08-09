@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -33,8 +34,7 @@ func main() {
 	JWT_SECRET := os.Getenv("JWT_SECRET")
 	DATABASE_URL := os.Getenv("DATABASE_URL")
 
-	// imprimir variables de entorno
-	println("PORT:", PORT)
+	fmt.Println("PORT:", PORT, "\n JWT_SECRET:", JWT_SECRET, "\n DATABASE_URL:", DATABASE_URL)
 
 	s, err := server.NewServer(ctx, &server.Config{
 		JwtSecret:   JWT_SECRET,
