@@ -1,0 +1,18 @@
+info:
+  name: Raíz
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: http://localhost:8080
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTRiY2ZiMWMtMzJlNS00YTM4LTgyZWUtMDE4ZmZkNjhhMjYyIiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzg5MjUyODgxLCJpYXQiOjE3ODkxNjY0ODF9.U8DY4YrUa_qPU9H3rla7-CyzsonxUs291E0iJyo1p-w
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
