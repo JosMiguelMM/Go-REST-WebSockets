@@ -1,3 +1,5 @@
+// Package handlers contiene los manejadores de rutas HTTP para la API REST.
+// Proporciona endpoints para autenticación, perfil de usuario y operaciones básicas.
 package handlers
 
 import (
@@ -15,62 +17,101 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const (
-	HASH_COST = 12
-)
+// HASH_COST define el costo de encriptación para bcrypt.
+// Un valor mayor aumenta la seguridad pero reduce el rendimiento.
+const HASH_COST = 12
 
+// ErrorResponse representa una respuesta de error en formato JSON.
 type ErrorResponse struct {
+	// Message contiene el mensaje de error descriptivo
 	Message string `json:"message"`
 }
 
+// SingUpLoginRequest representa los datos requeridos para registro o autenticación.
 type SingUpLoginRequest struct {
-	Email    string `json:"email"`
+	// Email dirección de correo electrónico del usuario
+	Email string `json:"email"`
+	// Password contraseña en texto plano (se encripta con bcrypt)
 	Password string `json:"password"`
 }
 
+// SingUpResponse representa la respuesta tras un registro exitoso.
 type SingUpResponse struct {
-	ID    string `json:"id"`
+	// ID identificador único generado con KSUID
+	ID string `json:"id"`
+	// Email dirección de correo del nuevo usuario
 	Email string `json:"email"`
 }
 
+// LoginResponse representa la respuesta tras una autenticación exitosa.
 type LoginResponse struct {
+	// Token token JWT firmado para acceso a endpoints protegidos
 	Token string `json:"token"`
 }
 
-// ... (justo después de tus structs)
-
-// SendErrorResponse es una función de ayuda para enviar errores en formato JSON.
+// SendErrorResponse envía una respuesta de error en formato JSON al cliente.
+//
+// Parámetros:
+//   - w *http.ResponseWriter: puntero al ResponseWriter de la respuesta HTTP
+//   - message string: mensaje descriptivo del error para mostrar al usuario
+//   - status int: código de estado HTTP (ej. 400, 401, 500)
 func SendErrorResponse(w http.ResponseWriter, message string, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(ErrorResponse{Message: message})
 }
 
-// ... (el resto de tus handlers)
-
+// SingUpHandler maneja el registro de nuevos usuarios.
+//
+// Ruta: POST /signup
+//
+// Parámetros:
+//   - s server.Server: instancia del servidor para acceso a configuración y repositorios
+//
+// Retornos:
+//   - http.HandlerFunc: manejador que procesa la solicitud de registro
+//
+// Comportamiento:
+//   - Valida el JSON del body (email, password)
+//   - Genera ID único con KSUID
+//   - Encripta la contraseña con bcrypt (HASH_COST = 12)
+//   - Inserta usuario en PostgreSQL
+//   - Maneja error de duplicado (status 409 Conflict)
+//
+// Respuesta exitosa (200 OK):
+//
+//	{
+//	  "id": "uuid-del-nuevo-usuario",
+//	  "email": "usuario@email.com"
+//	}
 func SingUpHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var request = SingUpLoginRequest{}
+		var request SingUpLoginRequest
+
 		err := json.NewDecoder(r.Body).Decode(&request)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
 		id, err := ksuid.NewRandom()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), HASH_COST)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		var user = models.User{
+
+		user := models.User{
 			Id:       id.String(),
 			Email:    request.Email,
 			Password: string(hashedPassword),
 		}
+
 		err = repository.InsertUser(r.Context(), &user)
 		if err != nil {
 			if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
@@ -78,23 +119,48 @@ func SingUpHandler(s server.Server) http.HandlerFunc {
 				w.WriteHeader(http.StatusConflict)
 				return
 			}
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(ErrorResponse{Message: err.Error()})
 			return
 		}
-		var response SingUpResponse = SingUpResponse{
+
+		response := SingUpResponse{
 			ID:    id.String(),
 			Email: request.Email,
 		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	}
 }
 
+// LoginHandler maneja la autenticación de usuarios.
+//
+// Ruta: POST /login
+//
+// Parámetros:
+//   - s server.Server: instancia del servidor para acceso al secret JWT
+//
+// Retornos:
+//   - http.HandlerFunc: manejador que procesa la solicitud de login
+//
+// Comportamiento:
+//   - Valida el JSON del body (email, password)
+//   - Busca usuario por email en la base de datos
+//   - Compara contraseña con bcrypt
+//   - Genera token JWT válido por 24 horas
+//
+// Respuestas posibles:
+//   - 200 OK: {"token": "jwt-token-string"}
+//   - 400 Bad Request: payload inválido
+//   - 401 Unauthorized: usuario o password incorrectos
+//   - 500 Internal Server Error: error de base de datos
 func LoginHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var request = SingUpLoginRequest{}
+		var request SingUpLoginRequest
+
 		err := json.NewDecoder(r.Body).Decode(&request)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
@@ -102,6 +168,7 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 			json.NewEncoder(w).Encode(ErrorResponse{Message: "Invalid request payload"})
 			return
 		}
+
 		user, err := repository.GetUserByEmail(r.Context(), request.Email)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
@@ -109,12 +176,14 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 			json.NewEncoder(w).Encode(ErrorResponse{Message: err.Error()})
 			return
 		}
+
 		if user == nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(ErrorResponse{Message: "Invalid credentials"})
 			return
 		}
+
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
@@ -125,14 +194,15 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 		claims := models.AppClaims{
 			UserId: user.Id,
 			RegisteredClaims: jwt.RegisteredClaims{
-				// Establecemos el tiempo de expiración (ej. 24 horas)
+				// Tiempo de expiración del token (ej. 24 horas)
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-				// Establecemos el tiempo de emisión
+				// Tiempo de emisión del token
 				IssuedAt: jwt.NewNumericDate(time.Now()),
-				// Establecemos el emisor (opcional)
+				// Emisor del token JWT (opcional)
 				Issuer: "my-app",
 			},
 		}
+
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		tokenString, err := token.SignedString([]byte(s.Config().JwtSecret))
 		if err != nil {
@@ -141,20 +211,45 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 			json.NewEncoder(w).Encode(ErrorResponse{Message: err.Error()})
 			return
 		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		response := LoginResponse{Token: tokenString}
-		json.NewEncoder(w).Encode(response)
+		json.NewEncoder(w).Encode(LoginResponse{Token: tokenString})
 	}
 }
 
+// MeHandler maneja la obtención del perfil del usuario autenticado.
+//
+// Ruta: GET /me
+//
+// Parámetros:
+//   - s server.Server: instancia del servidor para acceso al secret JWT
+//
+// Retornos:
+//   - http.HandlerFunc: manejador que procesa la solicitud de perfil
+//
+// Comportamiento:
+//   - Extrae y verifica token JWT del header Authorization (Bearer TOKEN)
+//   - Decodifica claims del token para obtener userId
+//   - Obtiene usuario completo desde base de datos por ID
+//
+// Respuesta exitosa (200 OK):
+//
+//	{
+//	  "id": "uuid-usuario",
+//	  "email": "usuario@email.com",
+//	  "password": "$2a$..."
+//	}
+//
+// Errores:
+//   - Token inválido o expirado: 401 Unauthorized
+//   - Error de DB: 500 Internal Server Error
 func MeHandler(s server.Server) http.HandlerFunc {
-
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
 
 		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{},
-			func(token *jwt.Token) (any, error) {
+			func(token *jwt.Token) (interface{}, error) {
 				return []byte(s.Config().JwtSecret), nil
 			})
 
@@ -162,12 +257,14 @@ func MeHandler(s server.Server) http.HandlerFunc {
 			SendErrorResponse(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
 		}
+
 		if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
 			user, err := repository.GetUserById(r.Context(), claims.UserId)
 			if err != nil {
 				SendErrorResponse(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(user)
@@ -176,5 +273,4 @@ func MeHandler(s server.Server) http.HandlerFunc {
 			return
 		}
 	}
-
 }

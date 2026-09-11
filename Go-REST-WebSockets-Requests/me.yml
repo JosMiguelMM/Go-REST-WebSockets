@@ -5,13 +5,14 @@ info:
 
 http:
   method: GET
-  url: http://localhost:8080
+  url: http://localhost:8080/me
   auth:
     type: bearer
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiM0hmUmZ3amNqQnNyR0FNTHI5Z3pUYnlFR29aIiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzg2MzQzNjQ5LCJpYXQiOjE3ODYyNTcyNDl9.WA2gZey7mLhEExPvjhqR7MT1hyojbJaImqIV7_4B-T4
+    token: yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiM0hmUmZ3amNqQnNyR0FNTHI5Z3pUYnlFR29aIiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzg5MTA0OTcyLCJpYXQiOjE3ODkwMTg1NzJ9.6E7bj7IlDcebWhEK4eZjcCFMVGmiaOAUKNNDZMq92jI
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
