@@ -1,0 +1,18 @@
+info:
+  name: /me
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:8080/me
+  headers:
+    - name: Authorization
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTRiY2ZiMWMtMzJlNS00YTM4LTgyZWUtMDE4ZmZkNjhhMjYyIiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzg5MjUzNjc1LCJpYXQiOjE3ODkxNjcyNzV9.zo_RQbxfscslgR0KLg15Tcf7nHM4fmMcVeNmrlCaWI4
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
