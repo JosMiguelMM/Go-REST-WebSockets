@@ -19,7 +19,7 @@ import (
 
 // HASH_COST define el costo de encriptación para bcrypt.
 // Un valor mayor aumenta la seguridad pero reduce el rendimiento.
-const HASH_COST = 12
+const HASH_COST = 15
 
 // ErrorResponse representa una respuesta de error en formato JSON.
 type ErrorResponse struct {
