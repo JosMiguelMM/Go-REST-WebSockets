@@ -249,7 +249,7 @@ func MeHandler(s server.Server) http.HandlerFunc {
 		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
 
 		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{},
-			func(token *jwt.Token) (interface{}, error) {
+			func(token *jwt.Token) (any, error) {
 				return []byte(s.Config().JwtSecret), nil
 			})
 
