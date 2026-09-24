@@ -1,3 +1,5 @@
+# Toda respuesta debe ser en idioma español
+
 ## 🎓 Contexto del Proyecto
 Este proyecto forma parte de un curso de desarrollo de software. Las reglas y estándares aquí definidos deben ser seguidos estrictamente durante las actividades del curso.
 

@@ -1,6 +1,7 @@
+package handlers
+
 // Package handlers contiene los manejadores de rutas HTTP para la API REST.
 // Proporciona endpoints para autenticación, perfil de usuario y operaciones básicas.
-package handlers
 
 import (
 	"encoding/json"
