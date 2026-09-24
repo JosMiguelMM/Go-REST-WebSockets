@@ -8,7 +8,7 @@ http:
   url: http://localhost:8080
   auth:
     type: bearer
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTRiY2ZiMWMtMzJlNS00YTM4LTgyZWUtMDE4ZmZkNjhhMjYyIiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzg5NjI2MDM0LCJpYXQiOjE3ODk1Mzk2MzR9.mGDn7_DL-6KUhf1oxYe3hhrYF-AnC0rlzgK7ymaGTa4
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZmFiMzY3MTEtZDBiOS00NWM1LWJhZWYtNTZmMTA2MzIyYjRkIiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzkwMzcxMzcwLCJpYXQiOjE3OTAyODQ5NzB9.vDx5-3dhTh66YNBHcateV8KGPMPXbKrV87FmsvOUBvs
 
 settings:
   encodeUrl: true

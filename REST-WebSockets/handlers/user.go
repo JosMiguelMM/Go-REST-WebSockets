@@ -5,9 +5,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 	"time"
 
+	"github.com/JosMiguelMM/Go-REST-WebSockets/auth"
 	"github.com/JosMiguelMM/Go-REST-WebSockets/models"
 	"github.com/JosMiguelMM/Go-REST-WebSockets/repository"
 	"github.com/JosMiguelMM/Go-REST-WebSockets/server"
@@ -218,7 +218,7 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 	}
 }
 
-// MeHandler maneja la obtención del perfil del usuario autenticado.
+// MeHandler maneja la obtención del perfil del usuario autenticado delegando en NewUserFromToken.
 //
 // Ruta: GET /me
 //
@@ -230,8 +230,8 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 //
 // Comportamiento:
 //   - Extrae y verifica token JWT del header Authorization (Bearer TOKEN)
-//   - Decodifica claims del token para obtener userId
-//   - Obtiene usuario completo desde base de datos por ID
+//   - Utiliza NewUserFromToken para validar el token y obtener el usuario
+//   - Devuelve el usuario completo en formato JSON
 //
 // Respuesta exitosa (200 OK):
 //
@@ -246,31 +246,14 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 //   - Error de DB: 500 Internal Server Error
 func MeHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
-
-		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{},
-			func(token *jwt.Token) (any, error) {
-				return []byte(s.Config().JwtSecret), nil
-			})
-
+		user, err := auth.NewUserFromToken(s, r)
 		if err != nil {
 			SendErrorResponse(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
 		}
 
-		if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
-			user, err := repository.GetUserById(r.Context(), claims.UserId)
-			if err != nil {
-				SendErrorResponse(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(user)
-		} else {
-			SendErrorResponse(w, "An error has occurred", http.StatusInternalServerError)
-			return
-		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(user)
 	}
 }
