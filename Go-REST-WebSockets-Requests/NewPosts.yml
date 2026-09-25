@@ -6,7 +6,15 @@ info:
 http:
   method: POST
   url: http://localhost:8080/posts
-  auth: inherit
+  body:
+    type: json
+    data: |-
+      {
+        "content": "Hola"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjI2ZDRkY2QtYjdlYi00OGJlLWIyNmMtMWNkZGY2NjljYTI0IiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzkwMzc5NzQ5LCJpYXQiOjE3OTAyOTMzNDl9.lVINqLEPySm4Z0njxaLv3ttC1DBhaKPEownLhGroDbQ
 
 settings:
   encodeUrl: true
