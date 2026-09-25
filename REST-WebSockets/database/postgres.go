@@ -70,6 +70,25 @@ func (repo *PostgresRepository) InsertPost(ctx context.Context, post *models.Pos
 	return err
 }
 
+func (repo *PostgresRepository) GetPostById(ctx context.Context, id string) (*models.ObtenerPost, error) {
+	rowsUsers, err := repo.db.QueryContext(ctx, "SELECT id, content, created_at, user_id FROM posts WHERE id = $1", id)
+	defer func() {
+		err := rowsUsers.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	var user models.ObtenerPost
+	if rowsUsers.Next() {
+		err = rowsUsers.Scan(&user.Id, &user.Content, &user.CreatedAt, &user.UserId)
+		if err != nil {
+			return &models.ObtenerPost{}, err
+		}
+	}
+	return &user, nil
+}
+
 func (repo *PostgresRepository) Close() error {
 	return repo.db.Close()
 }
