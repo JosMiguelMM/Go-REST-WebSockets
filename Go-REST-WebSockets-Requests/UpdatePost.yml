@@ -1,0 +1,24 @@
+info:
+  name: UpdatePost
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: http://localhost:8080/posts/6a5d0476-5559-4ab9-aa73-db5ad78d42a0d
+  body:
+    type: json
+    data: |-
+      {
+        "content": "atualizando post"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjI2ZDRkY2QtYjdlYi00OGJlLWIyNmMtMWNkZGY2NjljYTI0IiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzkwNDc4ODk1LCJpYXQiOjE3OTAzOTI0OTV9.yCz-nrywAxC5Y81nDwuX25BIIMheqcWsCulckq2-aWs
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
