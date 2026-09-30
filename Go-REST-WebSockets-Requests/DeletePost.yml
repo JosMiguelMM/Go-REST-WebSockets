@@ -1,0 +1,16 @@
+info:
+  name: DeletePost
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: http://localhost:8080/posts/6a5d0476-5559-4ab9-aa73-db5ad78d42a0d
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
