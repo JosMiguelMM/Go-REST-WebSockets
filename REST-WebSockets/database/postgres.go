@@ -99,6 +99,38 @@ func (repo *PostgresRepository) DeletePost(ctx context.Context, id string, userI
 	return err
 }
 
+func (repo *PostgresRepository) ListPosts(ctx context.Context, page uint64) ([]*models.ObtenerPost, error) {
+	offset := uint64(0)
+	if page > 0 {
+		offset = (page - 1) * 5
+	}
+	rows, err := repo.db.QueryContext(ctx, "SELECT id, content, created_at, user_id FROM posts LIMIT $1 OFFSET $2 ", 5, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	posts := make([]*models.ObtenerPost, 0)
+	for rows.Next() {
+		var post models.ObtenerPost
+		err := rows.Scan(&post.Id, &post.Content, &post.CreatedAt, &post.UserId)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, &post)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return posts, nil
+
+}
+
 func (repo *PostgresRepository) Close() error {
 	return repo.db.Close()
 }

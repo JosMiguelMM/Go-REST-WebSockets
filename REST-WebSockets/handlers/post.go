@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"uuid"
 
 	"github.com/JosMiguelMM/Go-REST-WebSockets/auth"
@@ -145,6 +146,33 @@ func DeletePostHandler(s server.Server) http.HandlerFunc {
 		json.NewEncoder(w).Encode(UpsertPostResponse{
 			Message: "Post deleted successfully",
 		})
+
+	}
+}
+
+func ListPostHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := auth.NewUserFromToken(s, r)
+		if err != nil {
+			SendErrorResponse(w, "Invalid or expired token", http.StatusUnauthorized)
+			return
+		}
+		pageStr := r.URL.Query().Get("page")
+		var page uint64
+		if pageStr != "" {
+			page, err = strconv.ParseUint(pageStr, 10, 64)
+			if err != nil {
+				SendErrorResponse(w, "Invalid page number format", http.StatusBadRequest)
+				return
+			}
+		}
+		posts, err := repository.ListPosts(r.Context(), page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(posts)
 
 	}
 }

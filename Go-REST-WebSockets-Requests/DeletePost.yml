@@ -5,8 +5,10 @@ info:
 
 http:
   method: DELETE
-  url: http://localhost:8080/posts/6a5d0476-5559-4ab9-aa73-db5ad78d42a0d
-  auth: inherit
+  url: http://localhost:8080/posts/6a5d0476-5559-4ab9-aa73-db5ad78d42a0
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjI2ZDRkY2QtYjdlYi00OGJlLWIyNmMtMWNkZGY2NjljYTI0IiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzkwODI5NzA1LCJpYXQiOjE3OTA3NDMzMDV9.N0U_wLgmyFp3tlE-2nNWBc-0dZMhHDCSfPuyioKVXuc
 
 settings:
   encodeUrl: true
