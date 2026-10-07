@@ -10,3 +10,5 @@ require (
 	github.com/segmentio/ksuid v1.0.4
 	golang.org/x/crypto v0.56.0
 )
+
+require github.com/gorilla/websocket v1.5.3 // indirect
