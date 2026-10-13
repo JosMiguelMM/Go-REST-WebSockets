@@ -1,0 +1,20 @@
+info:
+  name: tiempo reakl
+  type: websocket
+  seq: 11
+
+websocket:
+  url: ws://localhost:8080/ws
+  message:
+    - title: message 1
+      selected: false
+      message:
+        type: json
+        data: ""
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjI2ZDRkY2QtYjdlYi00OGJlLWIyNmMtMWNkZGY2NjljYTI0IiwiaXNzIjoibXktYXBwIiwiZXhwIjoxNzkxNjEyNjg1LCJpYXQiOjE3OTE1MjYyODV9.VOIy6t18275SZmRbjk1M1CZu2kFSK--0MBOhkm0bJrc
+
+settings:
+  timeout: 0
+  keepAliveInterval: 0

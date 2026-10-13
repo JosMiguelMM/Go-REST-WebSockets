@@ -8,6 +8,7 @@ import (
 
 	"github.com/JosMiguelMM/Go-REST-WebSockets/database"
 	repository "github.com/JosMiguelMM/Go-REST-WebSockets/repository"
+	"github.com/JosMiguelMM/Go-REST-WebSockets/websocket"
 	"github.com/gorilla/mux"
 )
 
@@ -19,15 +20,21 @@ type Config struct {
 
 type Server interface {
 	Config() *Config
+	Hub() *websocket.Hub
 }
 
 type Broker struct {
 	config *Config
 	router *mux.Router
+	hub    *websocket.Hub
 }
 
 func (b *Broker) Config() *Config {
 	return b.config
+}
+
+func (b *Broker) Hub() *websocket.Hub {
+	return b.hub
 }
 
 func NewServer(ctx context.Context, config *Config) (*Broker, error) {
@@ -44,6 +51,7 @@ func NewServer(ctx context.Context, config *Config) (*Broker, error) {
 	broker := &Broker{
 		config: config,
 		router: mux.NewRouter(),
+		hub:    websocket.NewHub(),
 	}
 	return broker, nil
 }
@@ -56,6 +64,7 @@ func (broker *Broker) Start(binder func(s Server, r *mux.Router)) {
 	if err != nil {
 		log.Fatal("Error creating database repository:", err)
 	}
+	go broker.hub.Run()
 	repository.SetRepository(repo)
 	log.Println("Starting server on port ", broker.Config().Port)
 	if err := http.ListenAndServe(":"+broker.config.Port, broker.router); err != nil {

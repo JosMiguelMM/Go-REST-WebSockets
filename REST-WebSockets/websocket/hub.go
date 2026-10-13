@@ -42,7 +42,7 @@ func (hub *Hub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	go client.Write()
 }
 
-func (hub Hub) onConnect(client *Client) {
+func (hub *Hub) onConnect(client *Client) {
 	log.Println("Cliente conectadio ", client.socket.RemoteAddr())
 	hub.mutex.Lock()
 	defer hub.mutex.Unlock()
@@ -80,12 +80,11 @@ func (hub *Hub) Run() {
 	}
 }
 
-func (hub *Hub) Broadcast(message interface{}, ignore *Client) {
+func (hub *Hub) Broadcast(message any, ignore *Client) {
 	data, _ := json.Marshal(message)
 	for _, client := range hub.clients {
 		if client != ignore {
 			client.outbound <- data
 		}
 	}
-
 }
