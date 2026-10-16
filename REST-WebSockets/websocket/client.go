@@ -20,14 +20,10 @@ func NewClient(hub *Hub, socket *websocket.Conn) *Client {
 }
 
 func (c *Client) Write() {
-	for {
-		select {
-		case message, ok := <-c.outbound:
-			if !ok {
-				c.socket.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-			c.socket.WriteMessage(websocket.TextMessage, message)
+	for message := range c.outbound {
+		if err := c.socket.WriteMessage(websocket.TextMessage, message); err != nil {
+			return
 		}
 	}
+	_ = c.socket.WriteMessage(websocket.CloseMessage, []byte{})
 }

@@ -13,7 +13,17 @@
     </h1>
 </body>
 <script>
-    fetch("http://localhost:8080/posts", {})
+    fetch("http://localhost:8080/posts", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).then(function (response) {
+        return response.json()
+
+    }).then(function (data) {
+        console.log("Esta es la data ", data)
+    })
 </script>
 
 </html>
