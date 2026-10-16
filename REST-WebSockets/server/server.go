@@ -10,6 +10,7 @@ import (
 	repository "github.com/JosMiguelMM/Go-REST-WebSockets/repository"
 	"github.com/JosMiguelMM/Go-REST-WebSockets/websocket"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type Config struct {
@@ -58,8 +59,9 @@ func NewServer(ctx context.Context, config *Config) (*Broker, error) {
 
 func (broker *Broker) Start(binder func(s Server, r *mux.Router)) {
 	//Para no llenar de basura al GC
-	//broker.router = mux.NewRouter()
+	broker.router = mux.NewRouter()
 	binder(broker, broker.router)
+	handler := cors.Default().Handler(broker.router)
 	repo, err := database.NewPostgres(broker.config.DataBaseUrl)
 	if err != nil {
 		log.Fatal("Error creating database repository:", err)
@@ -67,7 +69,7 @@ func (broker *Broker) Start(binder func(s Server, r *mux.Router)) {
 	go broker.hub.Run()
 	repository.SetRepository(repo)
 	log.Println("Starting server on port ", broker.Config().Port)
-	if err := http.ListenAndServe(":"+broker.config.Port, broker.router); err != nil {
+	if err := http.ListenAndServe(":"+broker.config.Port, handler); err != nil {
 		log.Fatal("ListendAndServer ", err)
 	}
 }
