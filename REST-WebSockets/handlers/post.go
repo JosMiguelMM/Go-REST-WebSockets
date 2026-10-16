@@ -157,11 +157,12 @@ func DeletePostHandler(s server.Server) http.HandlerFunc {
 
 func ListPostHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := auth.NewUserFromToken(s, r)
+		/*_, err := auth.NewUserFromToken(s, r)
 		if err != nil {
 			SendErrorResponse(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
-		}
+		}*/
+		var err error
 		pageStr := r.URL.Query().Get("page")
 		var page uint64
 		if pageStr != "" {
