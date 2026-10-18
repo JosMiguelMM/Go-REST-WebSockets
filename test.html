@@ -24,6 +24,17 @@
     }).then(function (data) {
         console.log("Esta es la data ", data)
     })
+    const ws = new WebSocket("ws://localhost:8080/ws")
+    ws.onopen = function () {
+        console.log("Connected to webdocket");
+    }
+
+    ws.onmessage = function (event) {
+        console.log("Error: " + event.data);
+    }
+    ws.onerror = function (event) {
+        console.log("Error: " + event.data);
+    }
 </script>
 
 </html>
